@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MTS Louças | Aluguel de louças</title>
+<meta name="description" content="Aluguel de louças para festas e eventos. Escolha os itens e peça seu orçamento pelo WhatsApp.">
+<link rel="icon" href="logo.jpg">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&family=Libre+Caslon+Text:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><div class="wrap"><img src="logo.jpg" alt="MTS Louças"><nav><a href="#catalogo">Catálogo</a><a href="#como">Como funciona</a><a href="#sobre">Sobre</a><a href="#contato">Contato</a></nav><button class="btn" id="cartBtn">Meu pedido<b id="count">0</b></button></div></header>
+<section class="heroBig"><div class="wrap two">
+<div><h1 id="store">MTS Louças</h1><p id="tag"></p><div class="ctas"><a class="btn" href="#catalogo">Ver catálogo</a><a class="btn alt wa-link" target="_blank" rel="noopener">Falar no WhatsApp</a></div></div>
+<img class="heroImg" src="logo.jpg" alt="Logo MTS Louças">
+</div></section>
+<section class="band"><div class="wrap perks">
+<div><h3>Para todo tipo de evento</h3><p>Aniversários, casamentos, confraternizações e reuniões em família.</p></div>
+<div><h3>Orçamento rápido</h3><p>Monte seu pedido no site e envie pelo WhatsApp em um clique.</p></div>
+<div><h3>Atendimento direto</h3><p>Você combina entrega, retirada e detalhes direto com a nossa equipe.</p></div>
+</div></section>
+<main class="wrap" id="catalogo"><h2 class="sec">Nosso catálogo</h2><div class="chips" id="chips"></div><div class="grid" id="grid"></div></main>
+<section class="band" id="como"><div class="wrap"><h2 class="sec">Como funciona</h2><ol class="steps">
+<li><b>Escolha os itens</b><span>Navegue pelo catálogo e adicione ao pedido as quantidades que precisar.</span></li>
+<li><b>Envie pelo WhatsApp</b><span>Clique em enviar e sua lista chega pronta para a nossa equipe.</span></li>
+<li><b>Combine os detalhes</b><span>Confirmamos disponibilidade, valores, entrega e retirada com você.</span></li>
+</ol></div></section>
+<section class="wrap" id="sobre"><div id="aboutSec" hidden><h2 class="sec">Sobre a MTS</h2><p class="about" id="about"></p></div></section>
+<footer id="contato"><div class="wrap foot">
+<div><img src="logo.jpg" alt="MTS Louças" class="flogo"><p id="fTag"></p></div>
+<div><h3>Contato</h3><ul id="contacts"></ul></div>
+<div><h3>Navegue</h3><ul><li><a href="#catalogo">Catálogo</a></li><li><a href="#como">Como funciona</a></li><li><a href="#sobre">Sobre</a></li></ul></div>
+</div><p class="copy" id="copy"></p></footer>
+<a class="fab wa-link" target="_blank" rel="noopener" aria-label="Chamar no WhatsApp">WhatsApp</a>
+<aside id="cart" aria-label="Meu pedido">
+<header><h2>Meu pedido</h2><button class="btn alt" id="close">Fechar</button></header>
+<div id="lines"></div>
+<input type="date" id="date" aria-label="Data do evento">
+<strong id="total"></strong>
+<button class="btn wa" id="send">Enviar pedido pelo WhatsApp</button>
+</aside>
+<script src="app.js"></script>
+</body>
+</html>

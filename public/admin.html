@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Painel MTS Louças</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&family=Libre+Caslon+Text:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><div class="wrap"><img src="logo.jpg" alt="MTS"><button class="btn alt" id="out" hidden>Sair</button></div></header>
+<main class="wrap">
+<div class="panel" id="login"><h2>Painel do lojista</h2><input type="password" id="pw" placeholder="Senha" autocomplete="current-password"><button class="btn" id="enter">Entrar</button><p class="msg" id="lm"></p></div>
+<div id="app" hidden>
+<div class="panel"><h2>Informações do site</h2>
+<label>Nome da loja<input id="sName"></label><label>Frase de apresentação<input id="sTag"></label>
+<label>WhatsApp (com DDI e DDD, ex: 5511999999999)<input id="sWa" inputmode="numeric"></label>
+<label>E-mail<input id="sEmail" type="email"></label><label>Instagram (@usuario)<input id="sIg"></label><label>Região de atendimento (ex: Zona Leste e Grande SP)<input id="sAddr"></label><label>Horário de atendimento<input id="sHours"></label><label>Sobre a loja (texto de apresentação)<textarea id="sAbout" rows="4"></textarea></label><label>Categorias (separadas por vírgula)<input id="sCats"></label>
+<button class="btn" id="saveS">Salvar informações</button><p class="msg" id="sm"></p></div>
+<form class="panel" id="f"><h2 id="ft">Novo item</h2>
+<label>Nome<input id="iName" required></label>
+<label>Categoria<select id="iCat"></select></label>
+<label>Preço por unidade (R$)<input id="iPrice" type="number" step="0.01" min="0" required></label>
+<label>Descrição<textarea id="iDesc" rows="2"></textarea></label>
+<label><input type="checkbox" id="iAv" checked style="width:auto"> Disponível no site</label>
+<div class="thumbs" id="thumbs"></div>
+<label>Adicionar fotos (pode escolher várias)<input type="file" id="iFiles" accept="image/jpeg,image/png,image/webp" multiple></label>
+<button class="btn" type="submit">Salvar item</button><button class="btn alt" type="button" id="cancel" hidden>Cancelar edição</button><p class="msg" id="fm"></p></form>
+<div class="panel"><h2>Itens cadastrados</h2><div id="list"></div></div>
+</div></main>
+<script>
+let T=localStorage.mtsToken||'',D,edit=null,keep=[];
+const $=s=>document.querySelector(s),esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function api(u,m='GET',b){const o={method:m,headers:{'x-token':T}};if(b instanceof FormData)o.body=b;else if(b){o.headers['Content-Type']='application/json';o.body=JSON.stringify(b)}
+const r=await fetch(u,o),j=await r.json();if(!r.ok){if(r.status===401&&u!=='/api/login')logout();throw new Error(j.error)}return j}
+function logout(){T='';localStorage.removeItem('mtsToken');$('#login').hidden=false;$('#app').hidden=true;$('#out').hidden=true}
+async function load(){D=await api('/api/site');$('#login').hidden=true;$('#app').hidden=false;$('#out').hidden=false;
+const s=D.settings;$('#sName').value=s.storeName;$('#sTag').value=s.tagline;$('#sWa').value=s.whatsapp;$('#sCats').value=s.categories.join(', ');$('#sEmail').value=s.email||'';$('#sIg').value=s.instagram||'';$('#sAddr').value=s.address||'';$('#sHours').value=s.hours||'';$('#sAbout').value=s.about||'';
+$('#iCat').innerHTML=s.categories.map(c=>`<option>${esc(c)}</option>`).join('');
+$('#list').innerHTML=D.items.length?D.items.map(i=>`<div class="item"><img src="${i.photos[0]||'logo.jpg'}" alt=""><div class="nm"><b>${esc(i.name)}</b><br><small>${esc(i.category)} · R$ ${i.price.toFixed(2)}${i.available?'':' · oculto'}</small></div><button class="btn alt" data-e="${i.id}">Editar</button><button class="btn alt" data-d="${i.id}">Remover</button></div>`).join(''):'<p>Nenhum item ainda. Use o formulário acima.</p>'}
+function thumbs(){$('#thumbs').innerHTML=keep.map((p,k)=>`<div><img src="${p}" alt=""><button type="button" data-r="${k}" aria-label="Remover foto">×</button></div>`).join('')}
+function reset(){edit=null;keep=[];$('#f').reset();$('#ft').textContent='Novo item';$('#cancel').hidden=true;thumbs()}
+$('#enter').onclick=async()=>{try{T=(await api('/api/login','POST',{password:$('#pw').value})).token;localStorage.mtsToken=T;await load()}catch(e){$('#lm').textContent=e.message}};
+$('#out').onclick=logout;$('#cancel').onclick=reset;
+$('#saveS').onclick=async()=>{try{await api('/api/settings','PUT',{storeName:$('#sName').value,tagline:$('#sTag').value,whatsapp:$('#sWa').value,email:$('#sEmail').value,instagram:$('#sIg').value,address:$('#sAddr').value,hours:$('#sHours').value,about:$('#sAbout').value,categories:$('#sCats').value.split(',').map(x=>x.trim()).filter(Boolean)});$('#sm').textContent='Informações salvas.';load()}catch(e){$('#sm').textContent=e.message}};
+$('#f').onsubmit=async e=>{e.preventDefault();const f=new FormData();
+f.append('name',$('#iName').value);f.append('category',$('#iCat').value);f.append('price',$('#iPrice').value);f.append('description',$('#iDesc').value);f.append('available',$('#iAv').checked);f.append('keep',JSON.stringify(keep));
+[...$('#iFiles').files].forEach(x=>f.append('photos',x));
+try{await api(edit?'/api/items/'+edit:'/api/items',edit?'PUT':'POST',f);$('#fm').textContent='Item salvo.';reset();load()}catch(er){$('#fm').textContent=er.message}};
+document.addEventListener('click',async e=>{const t=e.target.dataset;
+if(t.r){keep.splice(+t.r,1);thumbs()}
+if(t.d&&confirm('Remover este item e suas fotos?')){await api('/api/items/'+t.d,'DELETE');load()}
+if(t.e){const i=D.items.find(x=>x.id===t.e);edit=i.id;keep=[...i.photos];$('#iName').value=i.name;$('#iCat').value=i.category;$('#iPrice').value=i.price;$('#iDesc').value=i.description;$('#iAv').checked=i.available;$('#ft').textContent='Editar item';$('#cancel').hidden=false;thumbs();scrollTo({top:0,behavior:'smooth'})}});
+if(T)load().catch(logout);
+</script>
+</body>
+</html>
